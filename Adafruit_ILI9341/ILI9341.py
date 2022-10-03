@@ -116,7 +116,7 @@ class ILI9341(object):
     """Representation of an ILI9341 TFT LCD."""
 
     def __init__(self, dc, spi, rst=None, gpio=None, width=ILI9341_TFTWIDTH,
-        height=ILI9341_TFTHEIGHT):
+        height=ILI9341_TFTHEIGHT, rotation=0):
         """Create an instance of the display using SPI communication.  Must
         provide the GPIO pin number for the D/C pin and the SPI driver.  Can
         optionally provide the GPIO pin number for the reset pin as the rst
@@ -128,6 +128,12 @@ class ILI9341(object):
         self._gpio = gpio
         self.width = width
         self.height = height
+        if rotation not in (0, 90, 180, 270):
+            raise ValueError("Rotation must be 0/90/180/270")
+        self.rotation = rotation
+        if width == ILI9341_TFTWIDTH and height == ILI9341_TFTHEIGHT and rotation in (90, 270):
+            self.width = ILI9341_TFTHEIGHT
+            self.height = ILI9341_TFTWIDTH
         if self._gpio is None:
             self._gpio = GPIO.get_platform_gpio()
         # Set DC as output.
@@ -306,6 +312,10 @@ class ILI9341(object):
         # By default write the internal buffer to the display.
         if image is None:
             image = self.buffer
+        # rotate image
+        if self.rotation != 0:
+            image = image.rotate(self.rotation, expand=True)
+            self.width, self.height = image.size
         # Set address bounds to entire display.
         self.set_window()
         # Convert image to array of 16bit 565 RGB data bytes.
