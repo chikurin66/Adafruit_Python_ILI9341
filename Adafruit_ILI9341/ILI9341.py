@@ -132,8 +132,7 @@ class ILI9341(object):
             raise ValueError("Rotation must be 0/90/180/270")
         self.rotation = rotation
         if width == ILI9341_TFTWIDTH and height == ILI9341_TFTHEIGHT and rotation in (90, 270):
-            self.width = ILI9341_TFTHEIGHT
-            self.height = ILI9341_TFTWIDTH
+            print("[Warning] set proper width and height when using rotation.")
         if self._gpio is None:
             self._gpio = GPIO.get_platform_gpio()
         # Set DC as output.
@@ -159,6 +158,7 @@ class ILI9341(object):
         single SPI transaction, with a default of 4096.
         """
         # Set DC low for command, high for data.
+
         self._gpio.output(self._dc, is_data)
         # Convert scalar argument to list so either can be passed as parameter.
         if isinstance(data, numbers.Number):
